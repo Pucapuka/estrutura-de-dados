@@ -1,5 +1,3 @@
-https://wagnergaspar.com/como-implementar-uma-lista-circular-lista-encadeada-circular/ (para ajudar)
-
 //implementando uma fila encadeada circular
 
 /*
@@ -7,119 +5,163 @@ A fila encadeada segue o padrão de FIFO da estrutura de dados. É circular devi
 apontar para o endereço do primeiro. É encadeada por estar ligada as outras por nós, formando cadeias e ter número 
 "ilimitado" de adição de elementos.
 */ 
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-/*
-primeiro,cria-se uma struct do tipo no,contendo o dado(inteiro no caso) e um ponteiro
-do mesmo tipo para apontar o endereço do próximo a posteriori. O nome do tipo dessa- struct será No.
-*/ 
-typedef struct no{
-        int dado;
-        struct no *proximo;
-    }No;
-    
-/*
-cria-se uma struct para a fila com 2 ponteiros do tipo No para indicar inicio e fim e um inteiro para 
-indicar o tamanho. O nome to tipo dessa struct será referido como Fila.
-*/    
-typedef struct fila{
-    No *inicio;
-    No *fim;
-    int tamanho;
-}Fila;
+typedef struct No {
+    int dado;
+    struct No* proximo;
+} No;
 
+typedef struct Queue {
+    No* posterior;
+    No* anterior;
+} Queue;
 
-/*
-Procedimento para criar uma fila
-*/
-
-void criarFila(Fila *fila){ //um ponteiro "fila" que apontará para os endereços dentro da struct Fila
-    fila -> inicio = NULL;
-    fila -> fim = NULL;
-    fila -> tamanho = 0;
+Queue* CriarFila() {
+    Queue* fila = (Queue*)malloc(sizeof(Queue));
+    fila->posterior = NULL;
+    fila->anterior = NULL;
+    return fila;
 }
 
-/*
-procedimento para apontar para o primeiro item da fila (como é circular), utilizando dois parâmetros:
-um ponteiro, que aponta para a fila, e um valor.
-*/
-void inserirNoInicio(Fila *fila, int valor){
-    No *novo = malloc (sizeof(No)); //novo aponta para o último elemento da fila (o tamanho total do No)
-
-    if (novo){  //se estiver no último da fila
-        novo -> dado = valor; //o dado (apontado pelo novo) recebe o valor do parâmetro (para não se perder)
-        novo -> proximo = fila -> inicio; //aí, sim,o último elemento pode apontar para o início.
-        fila -> inicio = novo; //e novo se torna o início da fila.
-        if (fila -> fim == NULL){ //se o fim for nulo (indicando fila vazia),
-            fila -> fim = novo; //fim aponta para o novo no
-            fila -> fim -> proximo = fila -> inicio //fim aponta para o inicio
-            fila -> tamanho ++; //e o "tamanho" da fila aumenta. 
-        }else {
-            printf("\nErro ao alocar memória!\n");
-        }
-        
+void enfileirar(Queue* fila, int valor) {
+    No* novo = (No*)malloc(sizeof(No));
+    novo->dado = valor;
+    
+    if (fila->posterior == NULL) {  // Fila vazia
+        fila->posterior = novo;
+        fila->anterior = novo;
+        novo->proximo = novo;  // Circular
+    } else {
+        novo->proximo = fila->posterior;
+        fila->anterior->proximo = novo;
+        fila->anterior = novo;
     }
     
+    printf("O valor %d foi enfileirado com sucesso.\n", valor);
 }
 
-void inserirNoFim (Fila *fila, int valor){
-    
-    No *aux, *novo = malloc(sizeof(No)); //dois ponteiros que apontam para o endereço da struct No
-    
-    if (novo){
-        novo -> dado = valor;
-        
-        if (fila -> inicio == NULL){ //Se o intem inserido for o primeiro
-            fila -> inicio = novo;
-            fila -> fim = novo;
-            fila -> fim -> proximo = fila -> inicio;
-        }else{
-            fila -> fim -> proximo = novo;
-            fila -> fim = novo;
-            novo -> proximo = fila -> inicio; //poderia se utilizar fila -> fim -> proximo = fila -> inicio
-        }
-        fila -> tamanho ++;
-    }else{
-        printf("\nErro ao alocar memória!\n");
+int remover(Queue* fila) {
+    if (fila->posterior == NULL) {
+        printf("A fila está vazia.\n");
+        return -1;
     }
+    
+    int valor_removido;
+    
+    if (fila->posterior == fila->anterior) {  // Último elemento na fila
+        valor_removido = fila->posterior->dado;
+        free(fila->posterior);
+        fila->posterior = NULL;
+        fila->anterior = NULL;
+    } else {
+        No* temp = fila->posterior;
+        valor_removido = temp->dado;
+        fila->posterior = fila->posterior->proximo;
+        fila->anterior->proximo = fila->posterior;
+        free(temp);
+    }
+    
+    printf("O valor %d foi removido da fila.\n", valor_removido);
+    return valor_removido;
 }
 
-//procedimento para enfileirar
-
-void enqueue(Fila *fila, int valor){
-    No *aux, *novo = malloc(sizeof(No));
+void listar(Queue* fila) {
+    if (fila->posterior == NULL) {
+        printf("A fila está vazia.\n");
+        return;
+    }
     
-    if(novo){
-        novo -> dado = valor;
-        if (fila -> dado == NULL){
-            inserirNoInicio(fila, valor);
-        }else if(novo -> dado < fila -> inicio -> dado){
-            inserirNoInicio(fila,valor){
-            }else{
-                aux = fila -> inicio;
-                while(aux -> proximo != fila -> inicio && novo -> dado > aux -> proximo -> valor)
-                    aux = aux -> proximo;
-                if(aux -> proximo == fila -> inicio)
-                    inserirNoFim(fila, valor);
-                else{
-                    novo -> proximo = aux -> proximo;
-                    aux -> proximo = novo;
-                    lista -> tamanho++;
-                }
-            }
+    No* temp = fila->posterior;
+    
+    printf("\nItens fila: \n");
+    do {
+        printf("%d ", temp->dado);
+        temp = temp->proximo;
+    } while (temp != fila->posterior);
+    
+    printf("\n");
+}
+
+int buscar(Queue* fila, int valor) {
+
+    if (fila->posterior == NULL) {
+        printf("A fila está vazia.\n");
+        return 0;
+    }
+    
+    No* temp = fila->posterior;
+    int posicao = 1;
+
+    do {
+        if (temp->dado == valor) {
+            printf("O valor %d foi encontrado na posicao %d.\n", valor, posicao);
+            return 1;
         }
-    }else
-        printf("\nErro ao alocar memória!\n");
+        
+        temp = temp->proximo;
+        posicao ++;
+
+    } while (temp != fila->posterior);
+    
+    printf("O valor %d não foi encontrado na fila.\n", valor);
+    return 0;
 }
 
+// Função principal
+int main() {
+    int choice, valor;
+    Queue *fila = CriarFila();
 
-int main()
-{
-    
-   
-    
-    printf("Hello World");
+    while (true) {
+        // Menu de opções
+        printf("\n-----------------------\n");
+        printf("Fila Encadeada Circular");
+        printf("\n-----------------------\n");
+        printf("\nOpções:\n");
+        
+        printf("0. Sair\n");
+        printf("1. Inserir item\n");
+        printf("2. Remover item\n");
+        printf("3. Listar fila\n");
+        printf("4. Buscar item\n");
+        
+        scanf("%d", &choice);
 
+        //trabalhando as opções uma a uma
+        switch (choice){
+            case 1:
+                printf("Adicionar o item: ");
+                scanf("%d", &valor);
+                enfileirar(fila, valor);
+                break;
+
+            case 2:
+                printf("Removendo...\n");
+                remover(fila);
+                break;
+
+            case 3:
+                listar(fila);
+                break;
+
+            case 4:
+                printf("Qual item você busca?\n");
+                scanf("%d", &valor);
+                buscar(fila, valor);
+            
+                break;
+            
+            case 0:
+                printf("Saindo...");
+                exit(0);
+            
+            default:
+                printf("Opção inválida");
+                break;
+        }
+    }
     return 0;
 }
