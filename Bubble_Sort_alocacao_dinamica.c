@@ -82,16 +82,23 @@ void listar(Vet* item) {
 }
 
 void bubbleSort(Vet* item){
-    int aux;
-    No* temp = item->posterior;
-    while ((temp != item->posterior) && (item->posterior->dado > item->anterior->dado)){
-        aux = item->posterior->dado;
-        item->posterior->dado = item->anterior->dado;
-        item->anterior->dado = aux;
+    int i,j;
+    if (item -> posterior == NULL){
+        printf("\nLista vazia\n");
+        return;
     }
-    printf(item->anterior->dado);
-    printf(item->posterior->dado);
-    listar(item);
+    No* n = (No*)malloc(sizeof(No));
+    No* aux = NULL;
+    
+    for(item->anterior; item->posterior=NULL; item->posterior->proximo){
+        if(item->posterior->dado<item->anterior->dado){
+        aux = item->posterior;
+        item->posterior = item->anterior;
+        item->anterior = aux;
+        free(aux);
+        }
+ 
+    }
 }
 
 // Função principal
