@@ -1,4 +1,4 @@
-// Trabalhando insertion sort em uma lista duplamente encadeada
+// uma lista duplamente encadeada, pega do site do Wagner Gaspar (https://wagnergaspar.com/como-construir-uma-lista-duplamente-encadeada/)
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -59,15 +59,29 @@ void imprimir(No *no){
     printf("\n\n");
 }
 
-// retorna ponteiro para o último nó da lista
-No* ultimo(No **lista){
-    No *aux = *lista;
-    while(aux->proximo)
-        aux = aux->proximo;
-    return aux;
+// // retorna ponteiro para o último nó da lista
+// No* ultimo(No **lista){
+//     No *aux = *lista;
+//     while(aux->proximo)
+//         aux = aux->proximo;
+//     return aux;
+// }
+
+void insertionSort(No *no){
+    No* current;
+    current = no->proximo;
+   for(current; current->proximo!=NULL; current->proximo){
+        current = no->proximo;
+        for(no; no->anterior!=NULL;no->anterior){
+            if(current->valor < no->valor){
+                no->proximo = no;
+            }else{
+                break;
+            }
+        }
+      no->proximo = current;  
+    }
 }
-
-
 
 int main(){
 
@@ -75,7 +89,7 @@ int main(){
     No *lista = NULL;
 
     do{
-        printf("\n\t0 - Sair\n\t1 - Inserir no Início\n\t2 - Inserir no Fim\n\t3 - Imprimir\n");
+        printf("\n\t0 - Sair\n\t1 - Inserir no Início\n\t2 - Inserir no Fim\n\t3 - Imprimir\n\t4 - Ordenar\n");
         scanf("%d", &opcao);
 
         switch(opcao){
@@ -92,7 +106,8 @@ int main(){
         case 3:
             imprimir(lista);
             break;
-       
+        case 4:
+            insertionSort(lista);
         default:
             if(opcao != 0)
                 printf("Opcao invalida!\n");
